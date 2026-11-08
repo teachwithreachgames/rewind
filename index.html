@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REWIND: The Video Store Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game">
+
+    <!-- TITLE / DAY SELECT -->
+    <section id="screen-title" class="screen active">
+      <div class="title-wrap">
+        <h1 class="logo">REWIND</h1>
+        <p class="tagline" data-t="tagline"></p>
+        <div class="vhs-stripe"></div>
+
+        <div class="title-grid">
+          <div class="panel">
+            <div class="lang-toggle" role="group" aria-label="Language / Langue">
+              <button class="lang-btn" data-action="set-lang" data-lang="en">English</button>
+              <button class="lang-btn" data-action="set-lang" data-lang="fr">Français</button>
+            </div>
+            <label for="clerk-name" class="field-label" data-t="yourName"></label>
+            <input id="clerk-name" type="text" maxlength="20" autocomplete="off">
+
+            <p class="field-label" data-t="modeLabel"></p>
+            <div class="mode-toggle">
+              <button class="mode-btn selected" data-action="set-mode" data-mode="classroom">
+                <strong data-t="modeClassroom"></strong>
+                <span data-t="modeClassroomDesc"></span>
+              </button>
+              <button class="mode-btn" data-action="set-mode" data-mode="free">
+                <strong data-t="modeFree"></strong>
+                <span data-t="modeFreeDesc"></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <p class="field-label" data-t="pickDay"></p>
+            <div id="day-list" class="day-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BEA'S INTRO -->
+    <section id="screen-intro" class="screen">
+      <div class="intro-wrap">
+        <div class="portrait big" id="bea-portrait"></div>
+        <div class="intro-box">
+          <p class="speaker">Bea Kind</p>
+          <p id="intro-text" class="intro-text"></p>
+          <div class="intro-controls">
+            <span id="intro-count" class="muted"></span>
+            <button class="btn primary" data-action="intro-next" id="intro-next"></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE COUNTER -->
+    <section id="screen-shift" class="screen">
+      <header class="status-bar">
+        <span id="status-day"></span>
+        <span id="status-time"></span>
+        <span id="status-customer"></span>
+        <span id="status-clerk" class="badge"></span>
+        <button class="btn small" data-action="hint" id="hint-btn"></button>
+      </header>
+
+      <div class="counter-top">
+        <!-- Customer -->
+        <div class="panel customer-panel">
+          <div class="customer-row">
+            <div class="portrait" id="cust-portrait"></div>
+            <div>
+              <p class="cust-name" id="cust-name"></p>
+              <p class="mood"><span data-t="mood"></span> <span id="cust-mood"></span></p>
+            </div>
+          </div>
+          <div class="speech" id="cust-speech"></div>
+          <div id="cust-extra"></div>
+          <div class="bea-tip hidden" id="bea-tip">
+            <div class="portrait tiny" id="bea-mini"></div>
+            <p id="bea-tip-text"></p>
+          </div>
+        </div>
+
+        <!-- Store computer -->
+        <div class="crt">
+          <div class="crt-screen">
+            <div class="crt-head" data-t="crtHead"></div>
+            <nav class="crt-tabs">
+              <button data-action="tab" data-tab="members" data-t="tabMembers"></button>
+              <button data-action="tab" data-tab="newmember" data-t="tabNewMember"></button>
+              <button data-action="tab" data-tab="titles" data-t="tabTitles"></button>
+              <button data-action="tab" data-tab="returns" data-t="tabReturns"></button>
+              <button data-action="tab" data-tab="rental" data-t="tabRental"></button>
+            </nav>
+            <div id="crt-body" class="crt-body"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="counter-bottom">
+        <!-- Clipboard -->
+        <div class="panel clipboard">
+          <p class="panel-title" data-t="clipboard"></p>
+          <ol id="clip-steps" class="clip-steps"></ol>
+        </div>
+
+        <!-- Register -->
+        <div class="panel register">
+          <div class="panel-title-row">
+            <p class="panel-title" data-t="register"></p>
+            <div>
+              <button class="btn small" data-action="open-chart" data-t="taxChart"></button>
+              <button class="btn small" data-action="open-calc" data-t="calculator"></button>
+            </div>
+          </div>
+          <div id="register-body"></div>
+        </div>
+
+        <!-- Cash drawer -->
+        <div class="panel drawer-panel">
+          <p class="panel-title" data-t="drawer"></p>
+          <div id="drawer-body"></div>
+        </div>
+      </div>
+
+      <!-- Overlay for calculator / tax chart (in normal flow, positioned in the shift screen) -->
+      <div id="overlay" class="overlay hidden">
+        <div class="overlay-card" id="overlay-card"></div>
+      </div>
+    </section>
+
+    <!-- CLOSE THE REGISTER -->
+    <section id="screen-close" class="screen">
+      <div class="page-wrap">
+        <h2 class="neon-head" data-t="closeTitle"></h2>
+        <div class="close-grid">
+          <div class="panel">
+            <p class="panel-title" data-t="closeCount"></p>
+            <p class="sheet-help" data-t="sheetHelp"></p>
+            <table class="count-sheet" id="count-table"></table>
+            <div class="inline sheet-actions">
+              <button class="btn primary" data-action="check-count" data-t="check"></button>
+              <button class="btn small" data-action="open-calc-close" data-t="calculator"></button>
+            </div>
+            <p id="count-feedback" class="feedback"></p>
+          </div>
+          <div>
+            <div class="panel">
+              <p class="panel-title" data-t="closeCompare"></p>
+              <div id="compare-body"><p class="muted" data-t="closeCompareWait"></p></div>
+            </div>
+            <div id="close-calc" class="close-calc"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAYDAY (Friday) -->
+    <section id="screen-payday" class="screen">
+      <div class="page-wrap">
+        <h2 class="neon-head" data-t="paydayTitle"></h2>
+        <div class="close-grid">
+          <div class="panel paystub">
+            <p class="panel-title" data-t="payStub"></p>
+            <p class="pay-name" id="pay-name"></p>
+            <div class="compare-row"><span data-t="payHours"></span><span id="pay-hours"></span></div>
+            <div class="compare-row"><span data-t="payRate"></span><span id="pay-rate"></span></div>
+            <label for="pay-input" class="field-label" data-t="payTotal"></label>
+            <div class="inline">
+              <span>$</span><input id="pay-input" type="text" inputmode="decimal" autocomplete="off" data-enter-pay="1">
+              <button class="btn primary" data-action="check-pay" data-t="payCheck"></button>
+            </div>
+            <p id="pay-feedback" class="feedback"></p>
+          </div>
+          <div class="panel hidden" id="budget-panel">
+            <p class="panel-title" data-t="budgetHead"></p>
+            <p class="sheet-help" data-t="budgetHelp"></p>
+            <p class="goal-line" id="goal-line"></p>
+            <div class="jars">
+              <label for="jar-save" data-t="jarSave"></label><div class="inline"><span>$</span><input id="jar-save" type="text" inputmode="decimal" autocomplete="off"></div>
+              <label for="jar-spend" data-t="jarSpend"></label><div class="inline"><span>$</span><input id="jar-spend" type="text" inputmode="decimal" autocomplete="off"></div>
+              <label for="jar-share" data-t="jarShare"></label><div class="inline"><span>$</span><input id="jar-share" type="text" inputmode="decimal" autocomplete="off"></div>
+            </div>
+            <p id="budget-feedback" class="feedback"></p>
+            <div class="notes-actions"><button class="btn primary" data-action="save-budget" data-t="budgetDone"></button></div>
+            <div id="budget-result"></div>
+            <div class="notes-actions"><button class="btn primary hidden" id="payday-next" data-action="payday-next" data-t="continue"></button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MANAGER'S NOTES (classroom mode) -->
+    <section id="screen-notes" class="screen">
+      <div class="page-wrap">
+        <h2 class="neon-head" data-t="notesTitle"></h2>
+        <div class="panel notes-panel">
+          <div class="notes-bea">
+            <div class="portrait" id="bea-notes"></div>
+            <p data-t="notesIntro"></p>
+          </div>
+          <ol id="notes-list" class="notes-list"></ol>
+          <div id="notes-receipts"></div>
+          <div class="notes-actions">
+            <button class="btn" data-action="print-notes" data-t="printSheet"></button>
+            <button class="btn primary" data-action="to-report" data-t="doneWriting"></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SHIFT REPORT -->
+    <section id="screen-report" class="screen">
+      <div class="page-wrap">
+        <h2 class="neon-head" data-t="reportTitle"></h2>
+        <div class="panel report-panel">
+          <div id="report-stars" class="stars-big"></div>
+          <p id="report-caption" class="stars-caption"></p>
+          <div id="report-stats" class="stats-grid"></div>
+          <div id="report-log"></div>
+          <div class="notes-actions">
+            <button class="btn" data-action="replay" data-t="playAgain"></button>
+            <button class="btn primary" data-action="to-title" data-t="backToDays"></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Only visible when printing -->
+  <div id="print-sheet"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
